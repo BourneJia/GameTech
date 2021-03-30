@@ -1,0 +1,10 @@
+/3DBeginner/obj
+/3DBeginner/Library
+/3DBeginner/Logs
+/3DBeginner/*.csproj
+/3DBeginner/.vs/black_forest/v16/*.suo
+/3DBeginner/*.sln
+/3DBeginner/Temp
+/3DBeginner/c
+/3DBeginner/.vs
+/3DBeginner/Assets/AccountData.txt
