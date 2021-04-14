@@ -6,6 +6,8 @@ public class Bullet : MonoBehaviour
 {
     public float moveSpeed = 10;
 
+    public bool isPlayerBullect;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -23,15 +25,22 @@ public class Bullet : MonoBehaviour
         switch (collision.tag) 
         {
             case "Tank":
-                collision.SendMessage("Die");
+                if (!isPlayerBullect) 
+                {
+                    collision.SendMessage("Die");
+                }
                 break;
             case "Heart":
+                collision.SendMessage("Die");
                 break;
             case "Enemy":
                 break;
             case "Wall":
+                Destroy(collision.gameObject);
+                Destroy(gameObject);
                 break;
             case "Barriar":
+                Destroy(gameObject);
                 break;
             default:
                 break;
