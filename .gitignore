@@ -18,3 +18,13 @@
 /TankWar/c
 /TankWar/.vs
 /TankWar/Assets/AccountData.txt
+/NewTankWar/obj
+/NewTankWar/Library
+/NewTankWar/Logs
+/NewTankWar/*.csproj
+/NewTankWar/.vs/black_forest/v16/*.suo
+/NewTankWar/*.sln
+/NewTankWar/Temp
+/NewTankWar/c
+/NewTankWar/.vs
+/NewTankWar/Assets/AccountData.txt
