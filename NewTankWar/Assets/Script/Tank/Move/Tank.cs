@@ -4,6 +4,18 @@ using UnityEngine;
 
 public class Tank : MonoBehaviour
 {
+    //轮轴
+    public List<AxleInfo> axleInfos;
+    //马力/最大马力
+    private float motor = 0;
+    public float maxMotorTorque;
+    //制动/最大制动
+    private float brakeTorque = 0;
+    public float maxBrakeTorque = 100;
+    //转向角/最大转向角
+    private float steering = 0;
+    public float maxSteeringAngle;
+
     //炮塔
     public Transform turret;
     //炮塔旋转速度
@@ -17,7 +29,7 @@ public class Tank : MonoBehaviour
     private float maxRoll = 10f;
     private float minRoll = -4f;
     //炮管目标角度
-    //private float gunRotTarget = 0;
+    private float turretRollTarget = 0;
 
     private void Start()
     {
@@ -29,23 +41,38 @@ public class Tank : MonoBehaviour
 
     private void Update()
     {
-        //旋转
-        float steer = 20;
-        float x = Input.GetAxis("Horizontal");
-        transform.Rotate(0, x * steer * Time.deltaTime, 0);
+        //玩家控制操作
+        PlayerCtrl();
 
-        //前进后退
-        float speed = 3f;
-        float y = Input.GetAxis("Vertical");
-        Vector3 s = y * transform.forward * speed * Time.deltaTime;
-        transform.transform.position += s;
+        //遍历车轴
+        foreach (AxleInfo axleInfo in axleInfos) 
+        {
+            //转向
+            if (axleInfo.steering)
+            {
+                axleInfo.leftWheel.steerAngle = steering;
+                axleInfo.rightWheel.steerAngle = steering;
+            }
+            //马力
+            if (axleInfo.motor) 
+            {
+                axleInfo.leftWheel.motorTorque = motor;
+                axleInfo.rightWheel.motorTorque = motor;
+            }
+            //制动
+            if (true) 
+            {
+                axleInfo.leftWheel.brakeTorque = brakeTorque;
+                axleInfo.rightWheel.brakeTorque = brakeTorque;
+            }
+        }
 
         //炮塔旋转
-        //TurrentRotation();
+        TurrentRotation();
 
         //炮管旋转
-        turretRotTarget = Camera.main.transform.eulerAngles.y;
-        GunRoll();
+        //turretRollTarget = Camera.main.transform.eulerAngles.y;
+        TurretRoll();
     }
 
     //炮塔旋转
@@ -66,7 +93,7 @@ public class Tank : MonoBehaviour
     }
 
     //炮管旋转
-    public void GunRoll() 
+    public void TurretRoll() 
     {
         if (Camera.main == null)
             return;
@@ -77,7 +104,7 @@ public class Tank : MonoBehaviour
         Vector3 worldEuler = gun.eulerAngles;
         Vector3 localEuler = gun.localEulerAngles;
         //世界坐标系角度计算
-        worldEuler.x = turretRotTarget;
+        worldEuler.x = turretRollTarget;
         gun.eulerAngles = worldEuler;
         //本地坐标系角度限制
         Vector3 euler = gun.localEulerAngles;
@@ -89,5 +116,16 @@ public class Tank : MonoBehaviour
         if (euler.x < minRoll)
             euler.x = minRoll;
         gun.localEulerAngles = new Vector3(euler.x, localEuler.y, localEuler.z);
+    }
+
+    //玩家控制
+    public void PlayerCtrl() 
+    {
+        //马力和转向角
+        motor = maxMotorTorque * Input.GetAxis("Vertical");
+        steering = maxSteeringAngle * Input.GetAxis("Horizontal");
+        //炮塔炮管角度
+        turretRotTarget = Camera.main.transform.eulerAngles.y;
+        turretRollTarget = Camera.main.transform.eulerAngles.x;
     }
 }
