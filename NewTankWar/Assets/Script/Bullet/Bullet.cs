@@ -53,7 +53,7 @@ public class Bullet : MonoBehaviour
     //¼ÆËã¹¥»÷Á¦
     private float GetAtt()
     {
-        float att = 1000 - (Time.time - instantiaeTime)*40;
+        float att = 100 - (Time.time - instantiaeTime)*40;
         if (att < 1)
             att = 1;
         return att;

@@ -84,6 +84,8 @@ public class TankChapter2 : MonoBehaviour
     //发射音效
     public AudioClip shootClip;
 
+    private AI ai;
+
     //显示击杀图标
     public void StartDrawKill() 
     {
@@ -115,17 +117,6 @@ public class TankChapter2 : MonoBehaviour
 
     private void Start()
     {
-        //马达音源
-        motorAudioSource = gameObject.AddComponent<AudioSource>();
-        Debug.Log(motorAudioSource);
-        motorAudioSource.spatialBlend = 1;
-        Debug.Log(motorAudioSource);
-
-        //发射音源
-        shootAudioSource = gameObject.AddComponent<AudioSource>();
-        Debug.Log(shootAudioSource);
-        shootAudioSource.spatialBlend = 1;
-        Debug.Log(shootAudioSource);
         //获取炮塔
         turret = transform.Find("turret");
         //获取炮管
@@ -134,22 +125,29 @@ public class TankChapter2 : MonoBehaviour
         wheels = transform.Find("wheels");
         //获取履带
         tracks = transform.Find("tracks");
-        ////马达音源
-        //motorAudioSource = gameObject.AddComponent<AudioSource>();
-        //Debug.Log(motorAudioSource);
-        //motorAudioSource.spatialBlend = 1;
-        //Debug.Log(motorAudioSource);
 
-        ////发射音源
-        //shootAudioSource = gameObject.AddComponent<AudioSource>();
-        //Debug.Log(shootAudioSource);
-        //shootAudioSource.spatialBlend = 1;
-        //Debug.Log(shootAudioSource);
+        //马达音源
+        motorAudioSource = gameObject.AddComponent<AudioSource>();
+        motorAudioSource.spatialBlend = 1;
+
+        //发射音源
+        shootAudioSource = gameObject.AddComponent<AudioSource>();
+        shootAudioSource.spatialBlend = 1;
+
+        //添加AI组件
+        if (ctrlType == CtrlType.computer) 
+        {
+            ai = gameObject.AddComponent<AI>();
+            ai.tank = this;
+        }
     }
 
     private void Update()
     {
+        //操控
         PlayerCtrl();
+        ComputerCtrl();
+        NoneCtrl();
 
         //遍历车轴
         foreach (AxleInfoTankChapter2 axleInfoTankChapter in axleInfos) 
@@ -216,12 +214,7 @@ public class TankChapter2 : MonoBehaviour
             else if (axleInfo.rightWheel.rpm < -5 && motor > 0)
                 brakeTorque = maxBrakeTorque;
             continue;
-        }
-
-        //炮塔炮管角度
-        //turretRotTarget = Camera.main.transform.eulerAngles.y;
-        //turretRollTarget = Camera.main.transform.eulerAngles.x;
-        //TargetSignPos();
+        } 
 
         //发射炮弹
         if (Input.GetMouseButton(0))
@@ -231,6 +224,35 @@ public class TankChapter2 : MonoBehaviour
 
         //炮塔炮管角度
         TargetSignPos();
+    }
+
+    //电脑控制
+    public void ComputerCtrl() 
+    {
+        if (ctrlType != CtrlType.computer)
+            return;
+
+        //炮塔目标角度
+        Vector3 rot = ai.GetTurretTarget();
+        turretRotTarget = rot.y;
+        turretRollTarget = rot.x;
+        //发射炮弹
+        if (ai.IsShoot())
+            Shoot();
+        //移动
+        steering = ai.GetSteering();
+        motor = ai.GetMotor();
+        brakeTorque = ai.GetBrakeTorque();
+    }
+
+    //无人控制
+    public void NoneCtrl() 
+    {
+        if (ctrlType != CtrlType.none)
+            return;
+        motor = 0;
+        steering = 0;
+        brakeTorque = maxBrakeTorque / 2;
     }
 
     //炮塔旋转
@@ -349,6 +371,11 @@ public class TankChapter2 : MonoBehaviour
                 {
                     tankCmp.StartDrawKill();
                 }
+            }
+            //AI处理
+            if (ai != null) 
+            {
+                ai.OnAttecked(attackTank);
             }
         }
     }
